@@ -20,11 +20,14 @@ public class EmailRequestConsumer {
     @Autowired
     private EmailErroProdutor emailErroProdutor;
 
-    ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    ObjectMapper objectMapper;
 
     @RabbitListener(queues = {"email-request-queue"})
     public void receive(@Payload Message message){
         String payload = new String((byte[]) message.getPayload());
         System.out.println("Received message: " + payload);
     }
+
+
 }
