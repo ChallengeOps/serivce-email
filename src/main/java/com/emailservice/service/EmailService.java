@@ -51,7 +51,7 @@ public class EmailService {
 
             String template = carregarTemplateEmailSender();
 
-            String confirmationLink = "https://localhost:8082/email/confirmar/" + token;
+            String confirmationLink = "http://localhost:8082/email/confirmar/" + token;
             template = template.replace("{{confirmationLink}}", confirmationLink);
             helper.setText(template, true);
 
@@ -84,13 +84,14 @@ public class EmailService {
             throw new RuntimeException("Código de confirmação expirado");
         }
         success.setStatus(EmailConfirmation.Status.CONFIRMED);
+        repository.save(success);
 
         emailSucessoProdutor.enviarEmailSucesso(new Content(success.getUserId(), success.getEmail()));
         System.out.println("Email confirmado com o código: " + code);
     }
 
     public String carregarTemplateEmailSender() throws IOException {
-        ClassPathResource resource = new ClassPathResource("emailSend.html");
+        ClassPathResource resource = new ClassPathResource("emailSender.html");
         return new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
     }
 }

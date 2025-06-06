@@ -13,14 +13,10 @@ public class EmailSucessoProdutor {
     @Autowired
     public AmqpTemplate amqpTemplate;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
     public void enviarEmailSucesso(Content content) throws JsonProcessingException {
-        String mensagem = objectMapper.writeValueAsString(content);
         amqpTemplate.convertAndSend(
-                "email-response-sucesso-queue",
+                "email-exchange",
                 "email-response-sucesso-rout-key",
-                mensagem);
+                content);
     }
 }

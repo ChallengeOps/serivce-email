@@ -19,7 +19,7 @@ public class EmailErroProdutor {
     public void enviarEmailErro(Content content) throws JsonProcessingException {
         String mensagem = objectMapper.writeValueAsString(content);
         amqpTemplate.convertAndSend(
-                "email-response-erro-queue",
+                "email-exchange",
                 "email-response-erro-rout-key",
                 mensagem);
     }

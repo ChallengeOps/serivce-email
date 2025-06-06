@@ -4,6 +4,9 @@ public class Content {
     private Integer userId;
     private String email;
 
+    public Content() {
+    }
+
     public Content(Integer userId, String email) {
         this.userId = userId;
         this.email = email;
@@ -23,5 +26,13 @@ public class Content {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    @Override
+    public String toString() {
+        return "Content{" +
+                "userId=" + userId +
+                ", email='" + email + '\'' +
+                '}';
     }
 }

@@ -34,10 +34,10 @@ public class EmailConfirmation {
 
     public enum Status {
         PENDING,
-        CONFIRMED,
-        EXPIRED,
-        FAILED
+        CONFIRMED
     }
+
+    public EmailConfirmation(){}
 
     public EmailConfirmation(Integer userId, String email, String confirmationToken, LocalDateTime tokenExpiryDate, Status status, LocalDateTime createdAt) {
         this.userId = userId;
@@ -51,7 +51,6 @@ public class EmailConfirmation {
     public Integer getId() {
         return id;
     }
-
 
     public Integer getUserId() {
         return userId;
