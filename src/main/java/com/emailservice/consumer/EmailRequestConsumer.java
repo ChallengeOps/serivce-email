@@ -1,5 +1,6 @@
 package com.emailservice.consumer;
 
+import com.emailservice.service.EmailService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class EmailRequestConsumer {
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private EmailSucessoProdutor emailSucessoProdutor;
