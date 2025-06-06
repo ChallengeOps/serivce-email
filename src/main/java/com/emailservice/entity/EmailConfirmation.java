@@ -20,7 +20,7 @@ public class EmailConfirmation {
     private String email;
 
     @Column(name = "confirmation_token", nullable = false, unique = true, length = 255)
-    private Integer confirmationToken;
+    private String confirmationToken;
 
     @Column(name = "token_expiry_date", nullable = false)
     private LocalDateTime tokenExpiryDate;
@@ -39,7 +39,7 @@ public class EmailConfirmation {
         FAILED
     }
 
-    public EmailConfirmation(Integer userId, String email, Integer confirmationToken, LocalDateTime tokenExpiryDate, Status status, LocalDateTime createdAt) {
+    public EmailConfirmation(Integer userId, String email, String confirmationToken, LocalDateTime tokenExpiryDate, Status status, LocalDateTime createdAt) {
         this.userId = userId;
         this.email = email;
         this.confirmationToken = confirmationToken;
@@ -69,7 +69,7 @@ public class EmailConfirmation {
         this.email = email;
     }
 
-    public Integer getConfirmationToken() {
+    public String getConfirmationToken() {
         return confirmationToken;
     }
 

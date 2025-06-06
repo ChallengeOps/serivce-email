@@ -1,6 +1,8 @@
 package com.emailservice.consumer;
 
+import com.emailservice.entity.Content;
 import com.emailservice.service.EmailService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +26,9 @@ public class EmailRequestConsumer {
     ObjectMapper objectMapper;
 
     @RabbitListener(queues = {"email-request-queue"})
-    public void receive(@Payload Message message){
-        String payload = new String((byte[]) message.getPayload());
+    public void receive(@Payload Message message) throws JsonProcessingException {
+        Content payload = objectMapper.convertValue(message.getPayload(), Content.class);
+        emailService.enviarEmailSender(payload);
         System.out.println("Received message: " + payload);
     }
 

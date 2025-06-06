@@ -8,6 +8,7 @@ import com.emailservice.entity.repository.EmailRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -31,35 +32,39 @@ public class EmailService {
     @Autowired
     private EmailErroProdutor emailErroProdutor;
 
+    @Value("${spring.mail.username}")
     private String remetente;
 
     @Autowired
     private JavaMailSender javaMailSender;
 
     public void enviarEmailSender(Content content) throws JsonProcessingException {
-
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
+            String token = UUID.randomUUID().toString();
+
             helper.setFrom(remetente);
             helper.setTo(content.getEmail());
-            helper.setSubject("Confirmarção de Email");
+            helper.setSubject("Confirmação de E-mail");
 
             String template = carregarTemplateEmailSender();
 
+            String confirmationLink = "https://localhost:8082/email/confirmar/" + token;
+            template = template.replace("{{confirmationLink}}", confirmationLink);
             helper.setText(template, true);
+
             javaMailSender.send(message);
 
-            String code = String.format("%06d", (int)(Math.random() * 1000000));
-            int codeInt = Integer.parseInt(code);
             repository.save(new EmailConfirmation(
                     content.getUserId(),
                     content.getEmail(),
-                    codeInt,
-                    LocalDateTime.now().plusMinutes(20),
+                    token,
+                    LocalDateTime.now().plusMinutes(20), // expiração em 20 min
                     EmailConfirmation.Status.PENDING,
-                    LocalDateTime.now()));
+                    LocalDateTime.now()
+            ));
 
         } catch (Exception e) {
             System.err.println("Erro ao enviar email: " + e.getMessage());
@@ -68,15 +73,24 @@ public class EmailService {
         }
     }
 
+
     public void confirmarEmail(String code) throws JsonProcessingException {
         var success = repository.findByConfirmationToken(code).orElseThrow(() -> new RuntimeException("Código de confirmação inválido"));
+
+        if (success.getStatus() != EmailConfirmation.Status.PENDING) {
+            throw new RuntimeException("Código de confirmação já utilizado ou expirado");
+        }
+        if (success.getTokenExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("Código de confirmação expirado");
+        }
+        success.setStatus(EmailConfirmation.Status.CONFIRMED);
+
         emailSucessoProdutor.enviarEmailSucesso(new Content(success.getUserId(), success.getEmail()));
         System.out.println("Email confirmado com o código: " + code);
     }
 
-
     public String carregarTemplateEmailSender() throws IOException {
-        ClassPathResource resource = new ClassPathResource("sender.html");
+        ClassPathResource resource = new ClassPathResource("emailSend.html");
         return new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
     }
 }
